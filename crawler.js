@@ -52,3 +52,5 @@ function sendSmsMessage(message) {
     })
   );
 }
+
+return letsMakeSomeMoney();

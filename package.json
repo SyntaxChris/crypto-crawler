@@ -14,5 +14,14 @@
     "request": "^2.72.0",
     "twilio": "^3.11.0",
     "url-parse": "^1.1.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SyntaxChris/crypto-crawler.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SyntaxChris/crypto-crawler/issues"
+  },
+  "homepage": "https://github.com/SyntaxChris/crypto-crawler#readme"
 }
