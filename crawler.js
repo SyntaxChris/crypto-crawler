@@ -13,6 +13,7 @@ const Crawler = require("crawler");
 const CronJob = require('cron').CronJob;
 const http = require('http');
 const express = require('express');
+const moment = require('moment');
 const numbers = [
   process.env.CHRIS,
   // process.env.DAVID,
@@ -32,7 +33,7 @@ app.get('/', (req, res) => {
   res.send(xml({
     '?xml version="1.0" encoding="UTF-8"?' : null,
     Response: {
-      Say: 'Crypto Announcements Update!'
+      Say: 'Hi!'
     }
   }));
 });
