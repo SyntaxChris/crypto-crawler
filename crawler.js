@@ -15,6 +15,12 @@ const http = require('http');
 const express = require('express');
 const moment = require('moment');
 const morgan = require('morgan');
+const numbers = [
+  process.env.CHRIS,
+  // process.env.DAVID,
+  // process.env.PALERMO,
+  // process.env.ZOUHAIR
+];
 
 const app = express();
 
@@ -26,37 +32,14 @@ app.use(bodyParser.json({type: '*/*'}));
 //Set Routes
 app.get('/', (req, res) => {
   res.header('Content-Type','text/xml').send(
-    '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thanks for calling!</Say></Response>'
+    '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Crypto Announcements Update!</Say></Response>'
   );
-})
-// app.get('/token', (req, res) => {
-//   // put your Twilio API credentials here
-//   const accountSid = 'AC909901561188583720d965b6d00380c8';
-//   const authToken = 'your_auth_token';
-
-//   // put your Twilio Application Sid here
-//   const appSid = 'APXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
-
-//   const capability = new ClientCapability({
-//     accountSid: accountSid,
-//     authToken: authToken,
-//   });
-//   capability.addScope(
-//     new ClientCapability.OutgoingClientScope({ applicationSid: appSid })
-//   );
-//   const token = capability.toJwt();
-
-//   res.set('Content-Type', 'application/jwt');
-//   res.send(token);
-// });
-
-// app.post('/voice', (req, res) => {
-//   // TODO: Create TwiML response
-// });
+});
 
 //Sever setup
 const port = process.env.PORT || 3090;
 const server = http.createServer(app);
+
 server.listen(port);
 console.log('Server listening on ', port);
 
@@ -74,8 +57,9 @@ function letsMakeSomeMoney() {
       let newList = $(".article-list-item").text();
 
       if (announcements !== newList) {
-        announcements = newList
-        return sendSmsMessage('Crypto Alert: $$$ new coin(s) listed on Binance \n' + announcements)
+        announcements = newList;
+        sendSmsMessage('Crypto Alert: $$$ new coin(s) listed on Binance \n' + announcements);
+        return sendVoiceMessage();
       }
       
       console.log(`Nothing changed... ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
@@ -87,13 +71,6 @@ function letsMakeSomeMoney() {
 }
 
 function sendSmsMessage(message) {
-  const numbers = [
-    process.env.CHRIS,
-    // process.env.DAVID,
-    // process.env.PALERMO,
-    // process.env.ZOUHAIR
-  ];
-
   Promise.all(
     numbers.map((number) => {
       return client.messages.create({
@@ -105,29 +82,17 @@ function sendSmsMessage(message) {
   );
 }
 
-// function sendVoiceMessage() {
-//   const capability = new ClientCapability({
-//     accountSid: process.env.TWILIO_ACCOUNT_SID,
-//     authToken: process.env.TWILIO_AUTH_TOKEN
-//   })
-//   capability.addScope(
-
-//   )
-//   const numbers = [
-//     process.env.CHRIS,
-//     // process.env.DAVID,
-//     // process.env.PALERMO,
-//     // process.env.ZOUHAIR
-//   ];
-
-//   Promise.all(
-//     numbers.map((number) => {
-
-//     })
-//   );
-// }
-
-// return letsMakeSomeMoney();
+function sendVoiceMessage() {
+  Promise.all(
+    numbers.map((number) => {
+      return client.calls.create({
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: number,
+        url: process.env.VOICE_URL,
+      }).then((call) => process.stdout.write(call.sid));
+    })
+  );
+}
 
 return new CronJob('*/1 * * * *', function() {
   return letsMakeSomeMoney();
