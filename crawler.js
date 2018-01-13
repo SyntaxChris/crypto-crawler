@@ -24,7 +24,6 @@ const xml = require('object-to-xml');
 const app = express();
 
 //App setup
-app.use(morgan('xml response'));
 app.use(cors());
 
 //Set Routes
