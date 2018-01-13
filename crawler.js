@@ -13,8 +13,6 @@ const Crawler = require("crawler");
 const CronJob = require('cron').CronJob;
 const http = require('http');
 const express = require('express');
-const moment = require('moment');
-const morgan = require('morgan');
 const numbers = [
   process.env.CHRIS,
   // process.env.DAVID,
@@ -28,7 +26,6 @@ const app = express();
 //App setup
 app.use(morgan('xml response'));
 app.use(cors());
-// app.use(bodyParser.json({type: '*/*'}));
 
 //Set Routes
 app.get('/', (req, res) => {
@@ -36,10 +33,19 @@ app.get('/', (req, res) => {
   res.send(xml({
     '?xml version="1.0" encoding="UTF-8"?' : null,
     Response: {
-        Say: 'Crypto Announcements Update!'
+      Say: 'Crypto Announcements Update!'
     }
   }));
-  // '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Crypto Announcements Update!</Say></Response>'
+});
+
+app.post('/', (req, res) => {
+  res.set('Content-Type', 'text/xml');
+  res.send(xml({
+    '?xml version="1.0" encoding="UTF-8"?' : null,
+    Response: {
+      Say: 'Crypto Announcements Update!'
+    }
+  }));
 });
 
 //Sever setup
