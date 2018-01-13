@@ -1,15 +1,36 @@
 require('dotenv').config();
 
-var client = require('twilio')(
+let announcements;
+const bodyParser = require('body-parser');
+const binanceUrl= 'https://support.binance.com/hc/en-us/categories/115000056351-Announcements';
+const client = require('twilio')(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
-var Crawler = require("crawler");
-var _LIST='';
-var _BinanceUrl= 'https://support.binance.com/hc/en-us/categories/115000056351-Announcements';
+const cors = require('cors');
+const ClientCapability = require('twilio').jwt.ClientCapability;
+const Crawler = require("crawler");
+const CronJob = require('cron').CronJob;
+const http = require('http');
+const express = require('express');
+const moment = require('moment');
+const morgan = require('morgan');
+
+const app = express();
+
+//App setup
+app.use(morgan('combine'));
+app.use(cors());
+app.use(bodyParser.json({type: '*/*'}));
+
+//Sever setup
+const port = process.env.PORT || 3090;
+const server = http.createServer(app);
+server.listen(port);
+console.log('Server listening on ', port);
 
 function letsMakeSomeMoney() {
-  var crawler = new Crawler({
+  const crawler = new Crawler({
     maxConnections : 10,
     callback : function (error, res, done) {
       if (res.statusCode !== 200){
@@ -18,28 +39,28 @@ function letsMakeSomeMoney() {
 
       if (error) return sendSmsMessage('Crypto Alert: URL ERROR ' + error);
 
-      var $ = res.$;
-      var newList = $(".article-list-item").text();
+      const $ = res.$;
+      let newList = $(".article-list-item").text();
 
-      if (_LIST !== newList) {
-        _LIST = newList
-        return sendSmsMessage('Crypto Alert: $$$ new coin(s) listed on Binance \n' + _LIST)
+      if (announcements !== newList) {
+        announcements = newList
+        return sendSmsMessage('Crypto Alert: $$$ new coin(s) listed on Binance \n' + announcements)
       }
       
-      console.log("Nothing changed ...")
+      console.log(`Nothing changed... ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
       done();
     }
   });
 
-  return crawler.queue(_BinanceUrl);
+  return crawler.queue(binanceUrl);
 }
 
 function sendSmsMessage(message) {
   const numbers = [
     process.env.CHRIS,
-    process.env.DAVID,
-    process.env.PALERMO,
-    process.env.ZOUHAIR
+    // process.env.DAVID,
+    // process.env.PALERMO,
+    // process.env.ZOUHAIR
   ];
 
   Promise.all(
@@ -48,9 +69,35 @@ function sendSmsMessage(message) {
         from: process.env.MESSAGE_SERVICE_ID,
         to: number,
         body: message,
-      }).then((message) => console.log(message.sid));
+      }).then((message) => console.log(`Message id:::: ${message.sid}`));
     })
   );
 }
 
-return letsMakeSomeMoney();
+// function sendVoiceMessage() {
+//   const capability = new ClientCapability({
+//     accountSid: process.env.TWILIO_ACCOUNT_SID,
+//     authToken: process.env.TWILIO_AUTH_TOKEN
+//   })
+//   capability.addScope(
+
+//   )
+//   const numbers = [
+//     process.env.CHRIS,
+//     // process.env.DAVID,
+//     // process.env.PALERMO,
+//     // process.env.ZOUHAIR
+//   ];
+
+//   Promise.all(
+//     numbers.map((number) => {
+
+//     })
+//   );
+// }
+
+// return letsMakeSomeMoney();
+
+return new CronJob('*/1 * * * *', function() {
+  return letsMakeSomeMoney();
+}, null, true, 'America/Los_Angeles')
