@@ -98,7 +98,6 @@ function sendVoiceMessage() {
         to: number,
         url: process.env.VOICE_URL,
       }).then((call) => {
-        // process.stdout.write(call.sid)
         return console.log(`CALL ID: ${call.sid} on ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
       });
     })
@@ -109,11 +108,6 @@ function keepAwake () {
   console.log(`prevent app from sleeping ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
   return http.get(process.env.APP_URL);
 }
-
-// setInterval(function() {
-//   console.log(`prevent app from sleeping ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
-//   http.get(process.env.APP_URL)
-// }, 300000);
 
 return new CronJob('*/5 * * * *', function() {
   keepAwake();
