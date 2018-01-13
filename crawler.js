@@ -105,11 +105,17 @@ function sendVoiceMessage() {
   );
 }
 
-setInterval(function() {
+function keepAwake () {
   console.log(`prevent app from sleeping ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
-  http.get(process.env.APP_URL)
-}, 300000);
+  return http.get(process.env.APP_URL);
+}
+
+// setInterval(function() {
+//   console.log(`prevent app from sleeping ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
+//   http.get(process.env.APP_URL)
+// }, 300000);
 
 return new CronJob('*/5 * * * *', function() {
+  keepAwake();
   return letsMakeSomeMoney();
 }, null, true, 'America/Los_Angeles');
