@@ -21,6 +21,7 @@ const numbers = [
   // process.env.PALERMO,
   // process.env.ZOUHAIR
 ];
+const xml = require('object-to-xml');
 
 const app = express();
 
@@ -31,9 +32,14 @@ app.use(bodyParser.json({type: '*/*'}));
 
 //Set Routes
 app.get('/', (req, res) => {
-  res.header('Content-Type','text/xml').send(
-    '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Crypto Announcements Update!</Say></Response>'
-  );
+  res.set('Content-Type', 'text/xml');
+  res.send(xml({
+    '?xml version="1.0" encoding="utf-8"?' : null,
+    Response: {
+        Say: 'Crypto Announcements Update!'
+    }
+  }));
+  // '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Crypto Announcements Update!</Say></Response>'
 });
 
 //Sever setup
@@ -94,6 +100,6 @@ function sendVoiceMessage() {
   );
 }
 
-// return new CronJob('*/1 * * * *', function() {
-//   return letsMakeSomeMoney();
-// }, null, true, 'America/Los_Angeles')
+return new CronJob('*/5 * * * *', function() {
+  return letsMakeSomeMoney();
+}, null, true, 'America/Los_Angeles');
