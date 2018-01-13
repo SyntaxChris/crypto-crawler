@@ -25,10 +25,9 @@ app.use(bodyParser.json({type: '*/*'}));
 
 //Set Routes
 app.get('/', (req, res) => {
-  // res.header('Content-Type','text/xml').send(
-  //   '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thanks for calling!</Say></Response>'
-  // );
-  res.end();
+  res.header('Content-Type','text/xml').send(
+    '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thanks for calling!</Say></Response>'
+  );
 })
 // app.get('/token', (req, res) => {
 //   // put your Twilio API credentials here
