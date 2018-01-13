@@ -107,8 +107,8 @@ function sendVoiceMessage() {
 
 setInterval(function() {
   console.log('prevent app from sleeping');
-  http.get(process.env.VOICE_URL);
-}, 300000);
+  http.get(process.env.APP_URL);
+}, 30000);
 
 return new CronJob('*/5 * * * *', function() {
   return letsMakeSomeMoney();
