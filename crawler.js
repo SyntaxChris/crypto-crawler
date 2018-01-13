@@ -15,9 +15,9 @@ const express = require('express');
 const moment = require('moment');
 const numbers = [
   process.env.CHRIS,
-  // process.env.DAVID,
-  // process.env.PALERMO,
-  // process.env.ZOUHAIR
+  process.env.DAVID,
+  process.env.PALERMO,
+  process.env.ZOUHAIR
 ];
 const xml = require('object-to-xml');
 
@@ -30,12 +30,6 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.set('Content-Type', 'text/xml');
   res.sendStatus(200);
-  // res.send(xml({
-  //   '?xml version="1.0" encoding="UTF-8"?' : null,
-  //   Response: {
-  //     Say: 'Hi!'
-  //   }
-  // }));
 });
 
 app.post('/', (req, res) => {
