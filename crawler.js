@@ -94,6 +94,6 @@ function sendVoiceMessage() {
   );
 }
 
-return new CronJob('*/1 * * * *', function() {
-  return letsMakeSomeMoney();
-}, null, true, 'America/Los_Angeles')
+// return new CronJob('*/1 * * * *', function() {
+//   return letsMakeSomeMoney();
+// }, null, true, 'America/Los_Angeles')
