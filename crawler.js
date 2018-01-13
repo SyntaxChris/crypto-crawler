@@ -1,5 +1,4 @@
 // require('dotenv').config();
-
 let announcements;
 const bodyParser = require('body-parser');
 const binanceUrl= 'https://support.binance.com/hc/en-us/categories/115000056351-Announcements';
@@ -16,9 +15,9 @@ const express = require('express');
 const moment = require('moment');
 const numbers = [
   process.env.CHRIS,
-  // process.env.DAVID,
-  // process.env.PALERMO,
-  // process.env.ZOUHAIR
+  process.env.DAVID,
+  process.env.PALERMO,
+  process.env.ZOUHAIR
 ];
 const xml = require('object-to-xml');
 
@@ -105,6 +104,11 @@ function sendVoiceMessage() {
     })
   );
 }
+
+setInterval(function() {
+  console.log('prevent app from sleeping');
+  http.get(process.env.VOICE_URL);
+}, 300000);
 
 return new CronJob('*/5 * * * *', function() {
   return letsMakeSomeMoney();
