@@ -29,12 +29,13 @@ app.use(cors());
 //Set Routes
 app.get('/', (req, res) => {
   res.set('Content-Type', 'text/xml');
-  res.send(xml({
-    '?xml version="1.0" encoding="UTF-8"?' : null,
-    Response: {
-      Say: 'Hi!'
-    }
-  }));
+  res.sendStatus(200);
+  // res.send(xml({
+  //   '?xml version="1.0" encoding="UTF-8"?' : null,
+  //   Response: {
+  //     Say: 'Hi!'
+  //   }
+  // }));
 });
 
 app.post('/', (req, res) => {
@@ -88,7 +89,9 @@ function sendSmsMessage(message) {
         from: process.env.MESSAGE_SERVICE_ID,
         to: number,
         body: message,
-      }).then((message) => console.log(`Message id:::: ${message.sid}`));
+      }).then((message) => {
+        return console.log(`MESSAGE ID: ${message.sid} on ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
+      });
     })
   );
 }
@@ -100,7 +103,10 @@ function sendVoiceMessage() {
         from: process.env.TWILIO_PHONE_NUMBER,
         to: number,
         url: process.env.VOICE_URL,
-      }).then((call) => process.stdout.write(call.sid));
+      }).then((call) => {
+        // process.stdout.write(call.sid)
+        return console.log(`CALL ID: ${call.sid} on ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
+      });
     })
   );
 }
@@ -108,7 +114,7 @@ function sendVoiceMessage() {
 setInterval(function() {
   console.log(`prevent app from sleeping ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
   http.get(process.env.APP_URL)
-}, 30000);
+}, 300000);
 
 return new CronJob('*/5 * * * *', function() {
   return letsMakeSomeMoney();
