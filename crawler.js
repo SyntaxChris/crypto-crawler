@@ -19,9 +19,40 @@ const morgan = require('morgan');
 const app = express();
 
 //App setup
-app.use(morgan('combine'));
+app.use(morgan('xml response'));
 app.use(cors());
 app.use(bodyParser.json({type: '*/*'}));
+
+//Set Routes
+app.get('/', (req, res) => {
+  res.header('Content-Type','text/xml').send(
+    '<?xml version="1.0" encoding="UTF-8"?><Response><Say>Thanks for calling!</Say></Response>'
+  );
+})
+// app.get('/token', (req, res) => {
+//   // put your Twilio API credentials here
+//   const accountSid = 'AC909901561188583720d965b6d00380c8';
+//   const authToken = 'your_auth_token';
+
+//   // put your Twilio Application Sid here
+//   const appSid = 'APXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+
+//   const capability = new ClientCapability({
+//     accountSid: accountSid,
+//     authToken: authToken,
+//   });
+//   capability.addScope(
+//     new ClientCapability.OutgoingClientScope({ applicationSid: appSid })
+//   );
+//   const token = capability.toJwt();
+
+//   res.set('Content-Type', 'application/jwt');
+//   res.send(token);
+// });
+
+// app.post('/voice', (req, res) => {
+//   // TODO: Create TwiML response
+// });
 
 //Sever setup
 const port = process.env.PORT || 3090;
