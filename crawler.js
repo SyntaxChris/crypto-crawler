@@ -106,9 +106,9 @@ function sendVoiceMessage() {
 }
 
 setInterval(function() {
-  console.log('prevent app from sleeping');
+  console.log(`prevent app from sleeping ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
   http.get(process.env.APP_URL)
-}, 3000);
+}, 30000);
 
 return new CronJob('*/5 * * * *', function() {
   return letsMakeSomeMoney();
