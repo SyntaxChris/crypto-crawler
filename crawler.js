@@ -1,4 +1,4 @@
-require('dotenv').config();
+// require('dotenv').config();
 
 let announcements;
 const bodyParser = require('body-parser');
