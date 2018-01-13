@@ -15,9 +15,9 @@ const express = require('express');
 const moment = require('moment');
 const numbers = [
   process.env.CHRIS,
-  process.env.DAVID,
-  process.env.PALERMO,
-  process.env.ZOUHAIR
+  // process.env.DAVID,
+  // process.env.PALERMO,
+  // process.env.ZOUHAIR
 ];
 const xml = require('object-to-xml');
 
