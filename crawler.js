@@ -1,4 +1,4 @@
-// require('dotenv').config();
+require('dotenv').config();
 
 let announcements;
 const bodyParser = require('body-parser');
@@ -28,13 +28,13 @@ const app = express();
 //App setup
 app.use(morgan('xml response'));
 app.use(cors());
-app.use(bodyParser.json({type: '*/*'}));
+// app.use(bodyParser.json({type: '*/*'}));
 
 //Set Routes
 app.get('/', (req, res) => {
   res.set('Content-Type', 'text/xml');
   res.send(xml({
-    '?xml version="1.0" encoding="utf-8"?' : null,
+    '?xml version="1.0" encoding="UTF-8"?' : null,
     Response: {
         Say: 'Crypto Announcements Update!'
     }

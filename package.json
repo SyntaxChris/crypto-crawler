@@ -19,8 +19,7 @@
     "morgan": "^1.9.0",
     "object-to-xml": "^1.1.0",
     "request": "^2.72.0",
-    "twilio": "^3.11.0",
-    "xml": "^1.0.1"
+    "twilio": "^3.11.0"
   },
   "devDependencies": {},
   "repository": {
