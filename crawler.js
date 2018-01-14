@@ -128,7 +128,7 @@ const listPriceCrawler = function (name, limit) {
         if (currentPrice > lastPrice) lastPrice = currentPrice;
 
         const currentPriceDrop = 1 - (currentPrice/lastPrice);
-
+        console.log(`${name.toUpperCase()} current price drop: ${currentPriceDrop * 100}%`)
         if (currentPriceDrop > limit) {
           totalPriceDrop += currentPriceDrop
           sendSmsMessage(
