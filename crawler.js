@@ -1,5 +1,4 @@
 // require('dotenv').config();
-
 const _ = require('lodash');
 const bodyParser = require('body-parser');
 const client = require('twilio')(
@@ -15,14 +14,13 @@ const express = require('express');
 const moment = require('moment');
 const numbers = [
   process.env.CHRIS,
-  // process.env.DAVID,
-  // process.env.PALERMO,
-  // process.env.ZOUHAIR
+  process.env.DAVID,
+  process.env.PALERMO,
+  process.env.ZOUHAIR
 ];
 const xml = require('object-to-xml');
 let announcements;
 let lastPrice;
-let setLimitCron;
 let setLimitInterval;
 let totalPriceDrop = 0;
 
@@ -58,7 +56,11 @@ app.get('/set-drop-alert', (req, res) => {
     totalPriceDrop = 0;
   }
 
-  if (_.has(req.query, 'name') && _.has(req.query, 'limit') && _.has(req.query, 'time')) {
+  if (
+    _.has(req.query, 'name') &&
+    _.has(req.query, 'limit') &&
+    _.has(req.query, 'time')
+  ) {
     const { name, limit, time } = req.query;
 
     fetchListPrice(name, limit, time);
@@ -77,8 +79,8 @@ app.get('/clear-drop-alert', (req, res) => {
     totalPriceDrop = 0;
     return res.send('cleared drop alert');
   }
-  
-  return res.sendStatus(500);
+
+  res.send('no drop alert set');
 })
 
 //Sever setup
@@ -92,17 +94,17 @@ const announcementsCrawler = new Crawler({
   maxConnections : 10,
   callback : function (error, res, done) {
     if (res.statusCode !== 200){
-      return sendSmsMessage('Crypto Alert: URL responding with ' + res.statusCode + ' status code.')
+      return sendGroupSmsMessage('Crypto Alert: URL responding with ' + res.statusCode + ' status code.')
     }
 
-    if (error) return sendSmsMessage('Crypto Alert: URL ERROR ' + error);
+    if (error) return sendGroupSmsMessage('Crypto Alert: URL ERROR ' + error);
 
     const $ = res.$;
     let newList = $(".article-list-item").text();
 
     if (announcements !== newList) {
       announcements = newList;
-      sendSmsMessage('$$$ Crypto Alert $$$: new announcements listed on Binance \n' + announcements);
+      sendGroupSmsMessage('$$$ Crypto Alert $$$: new announcements listed on Binance \n' + announcements);
       return sendVoiceMessage();
     }
     
@@ -118,6 +120,8 @@ const listPriceCrawler = function (name, limit) {
       if (res.statusCode === 200) {
         const $ = res.$;
         const currentPrice = $('#quote_price').attr('data-usd');
+        const btc = $('span.text-gray.details-text-medium').text();
+        console.log('BTC', btc)
         // no price element
         if (!currentPrice) return;
         // no comparison price stored yet
@@ -128,7 +132,8 @@ const listPriceCrawler = function (name, limit) {
         if (currentPrice > lastPrice) lastPrice = currentPrice;
 
         const currentPriceDrop = 1 - (currentPrice/lastPrice);
-        console.log(`${name.toUpperCase()} current price drop: ${currentPriceDrop * 100}%`)
+        console.log(`${name.toUpperCase()} current price drop: ${currentPriceDrop * 100}%, current btc: ${btc}`)
+
         if (currentPriceDrop > limit) {
           totalPriceDrop += currentPriceDrop
           sendSmsMessage(
@@ -138,7 +143,8 @@ const listPriceCrawler = function (name, limit) {
               currentPriceDrop * 100
             }% TOTAL PRICE DROP: ${
               totalPriceDrop * 100
-            }%`
+            }% CURRENT BTC: ${btc}`,
+            process.env.CHRIS
           );
           lastPrice = currentPrice;
         }
@@ -166,7 +172,7 @@ function fetchListPrice(name, limit, time) {
   }, time);
 } 
 
-function sendSmsMessage(message) {
+function sendGroupSmsMessage(message) {
   Promise.all(
     numbers.map((number) => {
       return client.messages.create({
@@ -178,6 +184,16 @@ function sendSmsMessage(message) {
       });
     })
   );
+}
+
+function sendSmsMessage(message, number) {
+  return client.messages.create({
+    from: process.env.MESSAGE_SERVICE_ID,
+    to: number,
+    body: message,
+  }).then((message) => {
+    return console.log(`MESSAGE ID: ${message.sid} on ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
+  });
 }
 
 function sendVoiceMessage() {
