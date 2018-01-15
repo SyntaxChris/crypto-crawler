@@ -109,8 +109,8 @@ const announcementsCrawler = new Crawler({
 
     if (announcements !== newList) {
       announcements = newList;
-      // sendGroupSmsMessage('+$ Crypto Alert +$: new announcements listed on Binance \n' + announcements);
-      // return sendVoiceMessage();
+      sendGroupSmsMessage('+$ Crypto Alert +$: new announcements listed on Binance \n' + announcements);
+      return sendVoiceMessage();
     }
     
     console.log(`------ no changes ------ ${moment().tz('America/New_York').format('h:mm:ss a')}`);
