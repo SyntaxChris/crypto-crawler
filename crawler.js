@@ -1,4 +1,4 @@
-// require('dotenv').config();
+require('dotenv').config();
 const _ = require('lodash');
 const bodyParser = require('body-parser');
 const client = require('twilio')(
@@ -14,15 +14,16 @@ const express = require('express');
 const moment = require('moment');
 const numbers = [
   process.env.CHRIS,
-  process.env.DAVID,
-  process.env.PALERMO,
-  process.env.ZOUHAIR
+  // process.env.DAVID,
+  // process.env.PALERMO,
+  // process.env.ZOUHAIR
 ];
 const xml = require('object-to-xml');
 let announcements;
 let lastPrice;
 let setLimitInterval;
 let totalPriceDrop = 0;
+let totalPriceIncrease = 0;
 
 // binance crawler cron job
 const crawlBinanceAnnouncements = new CronJob('*/5 * * * *', function() {
@@ -53,7 +54,9 @@ app.post('/', (req, res) => {
 app.get('/set-drop-alert', (req, res) => {
   if (setLimitInterval) {
     clearInterval(setLimitInterval);
+    lastPrice = null;
     totalPriceDrop = 0;
+
   }
 
   if (
@@ -76,7 +79,9 @@ app.get('/set-drop-alert', (req, res) => {
 app.get('/clear-drop-alert', (req, res) => {
   if (setLimitInterval) {
     clearInterval(setLimitInterval);
+    lastPrice = null;
     totalPriceDrop = 0;
+
     return res.send('cleared drop alert');
   }
 
@@ -104,11 +109,11 @@ const announcementsCrawler = new Crawler({
 
     if (announcements !== newList) {
       announcements = newList;
-      sendGroupSmsMessage('$$$ Crypto Alert $$$: new announcements listed on Binance \n' + announcements);
-      return sendVoiceMessage();
+      // sendGroupSmsMessage('+$ Crypto Alert +$: new announcements listed on Binance \n' + announcements);
+      // return sendVoiceMessage();
     }
     
-    console.log(`No changes: ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
+    console.log(`------ no changes ------ ${moment().tz('America/New_York').format('h:mm:ss a')}`);
     done();
   }
 });
@@ -121,31 +126,42 @@ const listPriceCrawler = function (name, limit) {
         const $ = res.$;
         const currentPrice = $('#quote_price').attr('data-usd');
         const btc = $('span.text-gray.details-text-medium').text();
-        console.log('BTC', btc)
         // no price element
         if (!currentPrice) return;
+        // no btc element
+        if (!btc) return;
         // no comparison price stored yet
-        if (!lastPrice) {
-          lastPrice = currentPrice;
-        }
+        if (!lastPrice) lastPrice = currentPrice;
         // current price higher than stored price - new high!
         if (currentPrice > lastPrice) lastPrice = currentPrice;
 
+        if (lastPrice < currentPrice) totalPriceIncrease += (1 - lastPrice/currentPrice);
+
         const currentPriceDrop = 1 - (currentPrice/lastPrice);
-        console.log(`${name.toUpperCase()} current price drop: ${currentPriceDrop * 100}%, current btc: ${btc}`)
+
+        console.log(`
+          ${moment().tz('America/New_York').format('dddd, MMMM Do YYYY, h:mm:ss a')}
+          -------------------- ${name.toUpperCase()}
+          TOTAL DECREASE: ${(totalPriceDrop * 100).toFixed(4)}%
+          TOTAL INCREASE: ${(totalPriceIncrease * 100).toFixed(4)}%
+          CURRENT USD: ${currentPrice}
+          CURRENT BTC: ${btc}
+          -------------------- END
+        `);
 
         if (currentPriceDrop > limit) {
-          totalPriceDrop += currentPriceDrop
-          sendSmsMessage(
-            `-$ PRICE DROP: ${
-              name.toUpperCase()
-            } has dropped ${
-              currentPriceDrop * 100
-            }% TOTAL PRICE DROP: ${
-              totalPriceDrop * 100
-            }% CURRENT BTC: ${btc}`,
+          totalPriceDrop += currentPriceDrop;
+          sendSmsMessage(`
+            --- ${name.toUpperCase()} ---
+            CURR DROP: ${(currentPriceDrop * 100).toFixed(4)}%
+            TOT DROP: ${(totalPriceDrop * 100).toFixed(4)}%
+            CURR USD: $${currentPrice}
+            CURR BTC: ${btc}
+            --- END ---
+          `,
             process.env.CHRIS
           );
+
           lastPrice = currentPrice;
         }
 
@@ -154,8 +170,10 @@ const listPriceCrawler = function (name, limit) {
       
       if (setLimitInterval) {
         clearInterval(setLimitInterval);
+        lastPrice = null;
         totalPriceDrop = 0;
       }
+
       return done();
     }
   })
@@ -180,7 +198,7 @@ function sendGroupSmsMessage(message) {
         to: number,
         body: message,
       }).then((message) => {
-        return console.log(`MESSAGE ID: ${message.sid} on ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
+        return console.log(`MESSAGE ID: ${message.sid} on ${moment().tz('America/New_York').format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
       });
     })
   );
@@ -192,7 +210,7 @@ function sendSmsMessage(message, number) {
     to: number,
     body: message,
   }).then((message) => {
-    return console.log(`MESSAGE ID: ${message.sid} on ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
+    return console.log(`MESSAGE ID: ${message.sid} on ${moment().tz('America/New_York').format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
   });
 }
 
@@ -204,13 +222,13 @@ function sendVoiceMessage() {
         to: number,
         url: process.env.VOICE_URL,
       }).then((call) => {
-        return console.log(`CALL ID: ${call.sid} on ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
+        return console.log(`CALL ID: ${call.sid} on ${moment().tz('America/New_York').format("dddd, MMMM Do YYYY, h:mm:ss a")}`)
       });
     })
   );
 }
 
 function keepAwake () {
-  console.log(`prevent app from sleeping ${moment().format("dddd, MMMM Do YYYY, h:mm:ss a")}`);
+  console.log(`------ keep awake ------ ${moment().tz('America/New_York').format("h:mm:ss a")}`);
   return http.get(process.env.APP_URL);
 }
